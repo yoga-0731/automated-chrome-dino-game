@@ -39,6 +39,4 @@ while True:
     print(image)
     data = image.load()
     detect_collision()
-
-
-driver.quit()
+    
