@@ -1,14 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from PIL import ImageGrab, ImageOps
+import pyautogui
 import time
-from PIL import ImageGrab
+import numpy as np
 
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option('detach', True)  # Added to prevent closing of browser
 driver = webdriver.Chrome(options=options)  # Creating object
-driver.maximize_window()
+# driver.maximize_window()
 
 driver.get("https://elgoog.im/t-rex/")
 
@@ -17,28 +19,36 @@ time.sleep(5)
 game.send_keys(Keys.SPACE)
 
 
-def detect_collision():
-    # Bird
-    for i in range(800, 560):
-        for j in range(80, 127):
-            if data[i, j] < 171:
-                game.send_keys(Keys.ARROW_DOWN)
-                return
-
-    # Cactus
-    for i in range(530, 620):
-        for j in range(130, 160):
-            if data[i, j] < 100:
-                game.send_keys(Keys.ARROW_UP)
-                return
-    return
+class Coordinates:
+    dinosaur = (200, 200)
 
 
+def press_space():
+    pyautogui.keyUp('down')
+    pyautogui.keyDown('space')
+
+    time.sleep(0.05)
+
+    # print("jump")
+    time.sleep(0.10)
+
+    pyautogui.keyUp('space')
+    pyautogui.keyDown('down')
+
+
+def image_grab():
+    box = (Coordinates.dinosaur[0] + 30, Coordinates.dinosaur[1], Coordinates.dinosaur[0] + 120, Coordinates.dinosaur[1] + 2)
+    image = ImageGrab.grab(box)
+    gray_image = ImageOps.grayscale(image)
+    a = np.array(gray_image.getcolors())
+    return a.sum()
+
+
+pyautogui.keyDown('down')
 while True:
-    image = ImageGrab.grab().convert('L')
-    print(image)
-    data = image.load()
-    detect_collision()
-
+    if image_grab() != 435:
+        press_space()
+        time.sleep(0.1)
 
 driver.quit()
+
